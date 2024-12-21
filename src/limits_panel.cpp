@@ -13,11 +13,9 @@ LimitsPanel::LimitsPanel(KWebSocketClient &c, std::mutex &l)
   , velocity(limit_cont, "Velocity (mm/s)", &refresh_img, "Reset", &refresh_img, NULL, &LimitsPanel::_handle_callback, this, "")
   , acceleration(limit_cont, "Acceleration (mm/s2)", &refresh_img, "Reset", &refresh_img, NULL, &LimitsPanel::_handle_callback, this, "")
   , square_corner(limit_cont, "Square Corner Velocity (mm/s)", &refresh_img, "Reset", &refresh_img, NULL, &LimitsPanel::_handle_callback, this, "")
-  , accel_to_decel(limit_cont, "Acceleration to Deceleration (mm/s2)", &refresh_img, "Reset", &refresh_img, NULL, &LimitsPanel::_handle_callback, this, "")
   , back_btn(cont, &back, "Back", &LimitsPanel::_handle_callback, this)
   , max_velocity_default(1000)
   , max_accel_default(20000)
-  , max_accel_to_decel_default(10000)
   , square_corner_default(5)
 {
   lv_obj_move_background(cont);
@@ -55,16 +53,10 @@ void LimitsPanel::init(json &j) {
       acceleration.set_range(1, max_accel_default);
     }
 
-    if (v.contains("max_accel_to_decel")) {
-      max_accel_to_decel_default = v["max_accel_to_decel"].template get<int>();
-      accel_to_decel.set_range(1, max_accel_to_decel_default);
-    }
-
     if (v.contains("square_corner_velocity")) {
       square_corner_default = v["square_corner_velocity"].template get<int>();
       square_corner.set_range(0, square_corner_default);
     }
-    
   }
   
   v = j["/result/status/toolhead/max_velocity"_json_pointer];
@@ -75,11 +67,6 @@ void LimitsPanel::init(json &j) {
   v = j["/result/status/toolhead/max_accel"_json_pointer];
   if (!v.is_null()) {
     acceleration.update_value(v.template get<int>());
-  }
-
-  v = j["/result/status/toolhead/max_accel_to_decel"_json_pointer];
-  if (!v.is_null()) {
-    accel_to_decel.update_value(v.template get<int>());
   }
 
   v = j["/result/status/toolhead/square_corner_velocity"_json_pointer];
@@ -104,16 +91,10 @@ void LimitsPanel::consume(json &j) {
     acceleration.update_value(v.template get<int>());
   }
 
-  v = j["/params/0/toolhead/max_accel_to_decel"_json_pointer];
-  if (!v.is_null()) {
-    accel_to_decel.update_value(v.template get<int>());
-  }
-
   v = j["/params/0/toolhead/square_corner_velocity"_json_pointer];
   if (!v.is_null()) {
     square_corner.update_value(v.template get<int>());
   }
-  
 }
 
 void LimitsPanel::handle_callback(lv_event_t *e) {
@@ -130,31 +111,18 @@ void LimitsPanel::handle_callback(lv_event_t *e) {
 
     if (obj == velocity.get_slider()) {
       ws.gcode_script(fmt::format("SET_VELOCITY_LIMIT VELOCITY={}", v));
-
     } else if (obj == acceleration.get_slider()) {
       ws.gcode_script(fmt::format("SET_VELOCITY_LIMIT ACCEL={}", v));
-
-    } else if (obj == accel_to_decel.get_slider()) {
-      ws.gcode_script(fmt::format("SET_VELOCITY_LIMIT ACCEL_TO_DECEL={}", v));
-      
     } else if (obj == square_corner.get_slider()) {
       ws.gcode_script(fmt::format("SET_VELOCITY_LIMIT SQUARE_CORNER_VELOCITY={}", v));
-
     }
-    
   } else if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
     if (btn == velocity.get_off()) {
       ws.gcode_script(fmt::format("SET_VELOCITY_LIMIT VELOCITY={}", max_velocity_default));
-
     } else if (btn == acceleration.get_off()) {
       ws.gcode_script(fmt::format("SET_VELOCITY_LIMIT ACCEL={}", max_accel_default));
-
-    } else if (btn == accel_to_decel.get_off()) {
-      ws.gcode_script(fmt::format("SET_VELOCITY_LIMIT ACCEL_TO_DECEL={}", max_accel_to_decel_default));
-      
     } else if (btn == square_corner.get_off()) {
       ws.gcode_script(fmt::format("SET_VELOCITY_LIMIT SQUARE_CORNER_VELOCITY={}", square_corner_default));
-
     }
   }
 }

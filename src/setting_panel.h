@@ -2,14 +2,9 @@
 #define __SETTING_PANEL_H__
 
 #include "platform.h"
-
-#ifndef OS_ANDROID
 #include "wifi_panel.h"
-#endif
-
 #include "sysinfo_panel.h"
 #include "spoolman_panel.h"
-#include "printer_select_panel.h"
 #include "button_container.h"
 #include "websocket_client.h"
 #include "lvgl/lvgl.h"
@@ -35,13 +30,10 @@ class SettingPanel {
   KWebSocketClient &ws;
   lv_obj_t *cont;
 
-#ifndef OS_ANDROID
   WifiPanel wifi_panel;
-#endif
 
   SysInfoPanel sysinfo_panel;
   SpoolmanPanel &spoolman_panel;
-  PrinterSelectPanel printer_select_panel;
   ButtonContainer wifi_btn;
   ButtonContainer restart_klipper_btn;
   ButtonContainer restart_firmware_btn;
@@ -49,8 +41,7 @@ class SettingPanel {
   ButtonContainer spoolman_btn;
   ButtonContainer guppy_restart_btn;
   ButtonContainer guppy_update_btn;
-  ButtonContainer printer_select_btn;
-  
+
 };
 
 #endif // __SETTING_PANEL_H__

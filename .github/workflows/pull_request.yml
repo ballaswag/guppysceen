@@ -33,10 +33,6 @@ jobs:
       run: |
         echo "GUPPYSCREEN_VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
 
-    - name: export screen rotate
-      run: |
-        echo "GUPPY_ROTATE=true" >> $GITHUB_ENV
-
     - name: patch lv_drivers
       run: |
         git apply ../patches/0001-lv_driver_fb_ioctls.patch

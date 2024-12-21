@@ -43,19 +43,7 @@ CSRCS 			+= $(wildcard $(LVGL_DIR)/assets/*.c)
 CSRCS			+= $(wildcard $(LVGL_DIR)/lv_touch_calibration/*.c)
 
 ASSET_DIR		= material
-ifdef GUPPY_SMALL_SCREEN
-ASSET_DIR		= material_46
-DEFINES			+= -D GUPPY_SMALL_SCREEN
-endif
-
-DEFINES			+= -D GUPPY_ROTATE
-
-ifeq ($(GUPPY_THEME),zbolt)
-CSRCS 			+= $(wildcard $(LVGL_DIR)/assets/zbolt/*.c)
-DEFINES			+= -D ZBOLT
-else
 CSRCS 			+= $(wildcard $(LVGL_DIR)/assets/$(ASSET_DIR)/*.c)
-endif
 
 ifdef GUPPYSCREEN_VERSION
 DEFINES			+= -D GUPPYSCREEN_VERSION="\"${GUPPYSCREEN_VERSION}\""

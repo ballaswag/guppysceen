@@ -101,11 +101,7 @@ extern uint32_t custom_tick_get(void);
 
 /*Default Dot Per Inch. Used to initialize default sizes such as widgets sized, style paddings.
  *(Not so important, you can adjust it to modify default sizes and spaces)*/
-#ifdef GUPPY_SMALL_SCREEN
-    #define LV_DPI_DEF 90     /*[px/inch]*/
-#else
-    #define LV_DPI_DEF 130     /*[px/inch]*/
-#endif
+#define LV_DPI_DEF 130     /*[px/inch]*/
 
 /*=======================
  * FEATURE CONFIGURATION
@@ -830,11 +826,7 @@ extern uint32_t custom_tick_get(void);
 
 /*Default Dot Per Inch. Used to initialize default sizes such as widgets sized, style paddings.
  *(Not so important, you can adjust it to modify default sizes and spaces)*/
-#ifdef GUPPY_SMALL_SCREEN
-    #define LV_DPI_DEF 90     /*[px/inch]*/
-#else
-    #define LV_DPI_DEF 130     /*[px/inch]*/
-#endif
+#define LV_DPI_DEF 130     /*[px/inch]*/
 
 /*=======================
  * FEATURE CONFIGURATION

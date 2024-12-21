@@ -6,5 +6,5 @@ if [ "$CROSS_COMPILE" != "SIMULATION" ]; then
 fi
 
 # this line deletes just the guppyscreen objects so they are all rebuilt
-docker run -ti -v $PWD:$PWD pellcorp/guppydev /bin/bash -c "cd $PWD && $CROSS_COMPILE_ARG rm build/obj/src/*"
+#docker run -ti -v $PWD:$PWD pellcorp/guppydev /bin/bash -c "cd $PWD && $CROSS_COMPILE_ARG rm build/obj/src/*"
 docker run -ti -v $PWD:$PWD pellcorp/guppydev /bin/bash -c "cd $PWD && $CROSS_COMPILE_ARG make $@"

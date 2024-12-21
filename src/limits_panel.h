@@ -32,11 +32,11 @@ class LimitsPanel : public NotifyConsumer {
   SliderContainer velocity;
   SliderContainer acceleration;
   SliderContainer square_corner;
-  SliderContainer accel_to_decel;
+//  SliderContainer accel_to_decel;
   ButtonContainer back_btn;
   int max_velocity_default;
   int max_accel_default;
-  int max_accel_to_decel_default;
+//  int max_accel_to_decel_default;
   int square_corner_default;
   
 };

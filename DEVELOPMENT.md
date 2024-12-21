@@ -18,8 +18,6 @@ The Guppy Screen uses features (filesystem) from C++17, so a gcc/g++ version (7.
 ### Environment Variables
 `CROSS_COMPILE` - The prefix to the toolchain architecture, e.g. `mips-linux-gnu-`
 `SIMULATION` - Define it to build with SDL for running on your local machine.
-`ZBOLT` - Define it to use the Z-Bolt icon set. By default the build uses the Material Design Icons.
-`GUPPYSCREEN_VERSION` - Version string displayed in the System Panel in the UI.
 
 ### Build Environment
 

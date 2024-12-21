@@ -1,18 +1,10 @@
 #include "guppyscreen.h"
 
 #include "config.h"
-#ifndef OS_ANDROID
-  #include "lv_drivers/display/fbdev.h"
-  #include "lv_drivers/indev/evdev.h"
-  
-  #include "spdlog/sinks/rotating_file_sink.h"
-  #include "spdlog/sinks/stdout_sinks.h"
-
-#else
-  #include "spdlog/sinks/android_sink.h"
-#endif
-
-#include "printer_select_panel.h"
+#include "lv_drivers/display/fbdev.h"
+#include "lv_drivers/indev/evdev.h"
+#include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/sinks/stdout_sinks.h"
 #include "spdlog/spdlog.h"
 #include "state.h"
 #include "theme.h"
@@ -24,9 +16,7 @@ lv_style_t GuppyScreen::style_imgbtn_pressed;
 lv_style_t GuppyScreen::style_imgbtn_disabled;
 lv_theme_t GuppyScreen::th_new;
 
-#ifndef OS_ANDROID
 lv_obj_t *GuppyScreen::screen_saver = NULL;
-#endif
 
 KWebSocketClient GuppyScreen::ws(NULL);
 
@@ -75,16 +65,10 @@ GuppyScreen *GuppyScreen::init(std::function<void(lv_color_t, lv_color_t)> hal_i
           ? lv_color_hex(0xF44336)
           : lv_color_hex(std::stoul(theme_conf->get<std::string>("/secondary_color"), nullptr, 16));
 
-#ifndef OS_ANDROID
-  auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
-  auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
-      conf->get<std::string>("/log_path"), 1048576 * 10, 3);
-  spdlog::sinks_init_list log_sinks{console_sink, file_sink};
-
-#else
-  auto android_sink = std::make_shared<spdlog::sinks::android_sink_mt>();
-  spdlog::sinks_init_list log_sinks{android_sink};
-#endif  // OS_ANDROID
+auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+    conf->get<std::string>("/log_path"), 1048576 * 10, 3);
+spdlog::sinks_init_list log_sinks{console_sink, file_sink};
 
   auto klogger = std::make_shared<spdlog::logger>("guppyscreen", log_sinks);
   spdlog::register_logger(klogger);
@@ -101,11 +85,11 @@ GuppyScreen *GuppyScreen::init(std::function<void(lv_color_t, lv_color_t)> hal_i
   /*LittlevGL init*/
   lv_init();
 
-#if !defined(SIMULATOR) && !defined(OS_ANDROID)
+#if !defined(SIMULATOR)
   /*Linux frame buffer device init*/
   fbdev_init();
   fbdev_unblank();
-#endif  // OS_ANDROID
+#endif  // SIMULATOR
 
   hal_init(primary_color, secondary_color);
   lv_png_init();
@@ -152,45 +136,18 @@ GuppyScreen *GuppyScreen::init(std::function<void(lv_color_t, lv_color_t)> hal_i
     gs->connect_ws(ws_url);
   }
 
-#ifndef OS_ANDROID
   screen_saver = lv_obj_create(lv_scr_act());
 
   lv_obj_set_size(screen_saver, LV_PCT(100), LV_PCT(100));
   lv_obj_set_style_bg_opa(screen_saver, LV_OPA_100, 0);
   lv_obj_move_background(screen_saver);
 
-  lv_obj_t *main_screen = lv_disp_get_scr_act(NULL);
-  auto touch_calibrated = conf->get_json("/touch_calibrated");
-  if (!touch_calibrated.is_null()) {
-    auto is_calibrated = touch_calibrated.template get<bool>();
-    if (is_calibrated) {
-      auto calibration_coeff = conf->get_json("/touch_calibration_coeff");
-      if (calibration_coeff.is_null()) {
-        lv_tc_register_coeff_save_cb(&GuppyScreen::save_calibration_coeff);
-        lv_obj_t *touch_calibrate_scr = lv_tc_screen_create();
-
-        lv_disp_load_scr(touch_calibrate_scr);
-
-        lv_tc_screen_start(touch_calibrate_scr);
-        lv_obj_add_event_cb(touch_calibrate_scr, &GuppyScreen::handle_calibrated, LV_EVENT_READY, main_screen);
-        spdlog::info("running touch calibration");
-      } else {
-        // load calibration data
-        auto c = calibration_coeff.template get<std::vector<float>>();
-        lv_tc_coeff_t coeff = {true, c[0], c[1], c[2], c[3], c[4], c[5]};
-        lv_tc_set_coeff(coeff, false);
-        spdlog::info("loaded calibration coefficients");
-      }
-    }
-  }
-#endif // OS_ANDROID
-
   return gs;
 }
 
 void GuppyScreen::loop() {
   /*Handle LitlevGL tasks (tickless mode)*/
-#if !defined(SIMULATOR) && !defined(OS_ANDROID)
+#if !defined(SIMULATOR)
   std::atomic_bool is_sleeping(false);
   Config *conf = Config::get_instance();
   int32_t display_sleep = conf->get<int32_t>("/display_sleep_sec") * 1000;
@@ -201,7 +158,7 @@ void GuppyScreen::loop() {
     lv_timer_handler();
     lv_lock.unlock();
 
-#if !defined(SIMULATOR) && !defined(OS_ANDROID)
+#if !defined(SIMULATOR)
     if (display_sleep != -1) {
       if (lv_disp_get_inactive_time(NULL) > display_sleep) {
         if (!is_sleeping.load()) {
@@ -220,7 +177,7 @@ void GuppyScreen::loop() {
         }
       }
     }
-#endif  // SIMULATOR/OS_ANDROID
+#endif  // SIMULATOR
 
     usleep(5000);
   }

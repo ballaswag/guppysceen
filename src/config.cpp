@@ -25,16 +25,16 @@ void Config::init(std::string config_path, const std::string thumbdir) {
   struct stat buffer;
   json fans_conf = {
     {
-      {"id", "output_pin fan0"},
-      {"display_name", "Toolhead Fan"}
+      {"id", "fan_generic part"},
+      {"display_name", "Toolhead"}
     },
     {
-      {"id", "output_pin fan1"},
-      {"display_name", "Back Fan"}
+      {"id", "fan_generic auxiliary"},
+      {"display_name", "Auxiliary"}
     },
     {
-      {"id", "output_pin fan2"},
-      {"display_name", "Side Fan"}
+      {"id", "fan_generic chamber"},
+      {"display_name", "Chamber"}
     }
   };
 
@@ -50,12 +50,6 @@ void Config::init(std::string config_path, const std::string thumbdir) {
       {"display_name", "Bed"},
       {"controllable", true},
       {"color", "purple"}
-    },
-    {
-      {"id", "temperature_sensor chamber_temp"},
-      {"display_name", "Chamber"},
-      {"controllable", false},
-      {"color", "blue"}
     }
   };
 
@@ -72,10 +66,9 @@ void Config::init(std::string config_path, const std::string thumbdir) {
         {"log_path", "/usr/data/printer_data/logs/guppyscreen.log"},
         {"thumbnail_path", thumbdir},
         {"wpa_supplicant", "/var/run/wpa_supplicant"},
-        {"display_sleep_sec", 600}
-#ifndef OS_ANDROID
-        , {"default_printer", "k1"},
-        {"printers", {{"k1", {
+        {"display_sleep_sec", 600},
+        {"default_printer", "default"},
+        {"printers", {{"default", {
                                  {"moonraker_api_key", false},
                                  {"moonraker_host", "127.0.0.1"},
                                  {"moonraker_port", 7125},
@@ -84,7 +77,6 @@ void Config::init(std::string config_path, const std::string thumbdir) {
                                  {"default_macros", default_macros_conf},
                              }}}
         }
-#endif
     };
   }
 
@@ -128,23 +120,6 @@ void Config::init(std::string config_path, const std::string thumbdir) {
     if (ll.is_null()) {
       data[json::json_pointer(df() + "log_level")] = "debug";
     }
-  }
-  auto &rotate = data["/display_rotate"_json_pointer];
-  if (rotate.is_null()) {
-#ifdef GUPPY_ROTATE
-    data["/display_rotate"_json_pointer] = 3; // LV_DISP_ROT_270
-#else
-    data["/display_rotate"_json_pointer] = 0; // LV_DISP_ROT_0
-#endif
-  }
-
-  auto &touch_calibrated = data["/touch_calibrated"_json_pointer];
-  if (touch_calibrated.is_null()) {
-#ifdef EVDEV_CALIBRATE
-    data["/touch_calibrated"_json_pointer] = true; // EVDEV_CALIBRATE
-#else
-    data["/touch_calibrated"_json_pointer] = false; // EVDEV_CALIBRATE
-#endif
   }
 
   auto &estop = data["/prompt_emergency_stop"_json_pointer];

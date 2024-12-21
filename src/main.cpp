@@ -72,15 +72,8 @@ static void hal_init(lv_color_t primary, lv_color_t secondary) {
     
     disp_drv.hor_res    = width;
     disp_drv.ver_res    = height;
-    Config *conf = Config::get_instance();
-    auto rotate = conf->get_json("/display_rotate");
-    if (!rotate.is_null()) {
-      auto rotate_value = rotate.template get<uint32_t>();
-      if (rotate_value > 0 && rotate_value < 4) {
-        disp_drv.sw_rotate = 1;
-        disp_drv.rotated = rotate_value;
-      }
-    }
+    disp_drv.sw_rotate = 1;
+    disp_drv.rotated = 3; // hardcoded to 3 for k series
 
     spdlog::debug("resolution {} x {}", width, height);
     lv_disp_t * disp = lv_disp_drv_register(&disp_drv);
@@ -94,16 +87,6 @@ static void hal_init(lv_color_t primary, lv_color_t secondary) {
     lv_indev_drv_init(&indev_drv_1);
     indev_drv_1.read_cb = evdev_read; // no calibration
     indev_drv_1.type = LV_INDEV_TYPE_POINTER;
-
-    auto touch_calibrated = conf->get_json("/touch_calibrated");
-    if (!touch_calibrated.is_null()) {
-      auto is_calibrated = touch_calibrated.template get<bool>();
-      if (is_calibrated) {
-        spdlog::info("using touch calibration");
-        lv_tc_indev_drv_init(&indev_drv_1, evdev_read);
-      }
-    }
-      
     lv_indev_drv_register(&indev_drv_1);
 }
 
