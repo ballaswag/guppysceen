@@ -38,9 +38,7 @@ BeltsCalibrationPanel::BeltsCalibrationPanel(KWebSocketClient &c, std::mutex &l)
 		    c.send_jsonrpc("printer.emergency_stop");
 		  })
   , back_btn(button_cont, &back, "Back", &BeltsCalibrationPanel::_handle_callback, this)
-  , image_fullsized(false),
-  belts_shaper_calibration_macro("BELTS_SHAPER_CALIBRATION"),
-  excitate_axis_at_frequency_macro("EXCITATE_AXIS_AT_FREQUENCY")
+  , image_fullsized(false)
 {
   lv_obj_move_background(cont);
 
@@ -117,18 +115,9 @@ void BeltsCalibrationPanel::foreground() {
 
 void BeltsCalibrationPanel::handle_callback(lv_event_t *event) {
   Config *conf = Config::get_instance();
-  auto df = conf->get_json("/default_printer");
-  if (!df.empty()) {
-    auto v = conf->get_json(conf->df() + "default_macros/belts_shaper_calibration");
-    if (!v.is_null()) {
-      belts_shaper_calibration_macro = v.template get<std::string>();
-    }
+  const std::string belts_shaper_calibration_macro = conf->get<std::string>("/default_macros/belts_shaper_calibration");
+  const std::string excitate_axis_at_frequency_macro = conf->get<std::string>("/default_macros/excitate_axis_at_frequency");
 
-    v = conf->get_json(conf->df() + "default_macros/excitate_axis_at_frequency");
-    if (!v.is_null()) {
-      excitate_axis_at_frequency_macro = v.template get<std::string>();
-    }
-  }
   lv_obj_t *btn = lv_event_get_current_target(event);
   if (btn == calibrate_btn.get_container()) {
     auto config_root = KUtils::get_root_path("config");
@@ -200,10 +189,7 @@ void BeltsCalibrationPanel::handle_macro_response(json &j) {
       auto config_root = KUtils::get_root_path("config");
       auto png_path = fmt::format("{}/{}", config_root.length() > 0 ? config_root : "/tmp" , BELTS_PNG);
 
-      png_path = 
-	fmt::format("A:{}", KUtils::is_running_local()
-		    ? png_path
-		    : KUtils::download_file("config", BELTS_PNG, Config::get_instance()->get_thumbnail_path()));
+      png_path = fmt::format("A:{}", png_path);
 
       lv_img_set_src(graph, png_path.c_str());
       lv_obj_clear_flag(graph, LV_OBJ_FLAG_HIDDEN);

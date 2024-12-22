@@ -42,9 +42,6 @@ class ExtruderPanel : public NotifyConsumer {
   ButtonContainer extrude_btn;
   ButtonContainer retract_btn;
   ButtonContainer back_btn;
-  std::string load_filament_macro;
-  std::string unload_filament_macro;
-  std::string cooldown_macro;
 };
 
 #endif // __EXTRUDER_PANEL_H__

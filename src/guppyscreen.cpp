@@ -43,32 +43,21 @@ GuppyScreen *GuppyScreen::init(std::function<void(lv_color_t, lv_color_t)> hal_i
 
   // config
   Config *conf = Config::get_instance();
-  const std::string ll_path = conf->df() + "log_level";
-  auto ll = spdlog::level::from_str(
-      conf->get_json("/printers").empty() 
-      ? "debug" 
-      : conf->get<std::string>(ll_path));
+  auto ll = spdlog::level::from_str(conf->get<std::string>("/log_level"));
 
-  auto selected_theme = conf->get_json("/theme").empty()
-          ? "blue.json"
-          : conf->get<std::string>("/theme") + ".json";
+  const std::string selected_theme = conf->get_json("/theme").template get<std::string>();
   auto theme_config = fs::canonical(conf->get_path()).parent_path() / "themes" / selected_theme;
 
   ThemeConfig *theme_conf = ThemeConfig::get_instance();
   theme_conf->init(theme_config);
 
-  auto primary_color = theme_conf->get_json("/primary_color").empty()
-          ? lv_color_hex(0x2196F3)
-          : lv_color_hex(std::stoul(theme_conf->get<std::string>("/primary_color"), nullptr, 16));
+  auto primary_color = lv_color_hex(std::stoul(theme_conf->get<std::string>("/primary_color"), nullptr, 16));
+  auto secondary_color = lv_color_hex(std::stoul(theme_conf->get<std::string>("/secondary_color"), nullptr, 16));
 
-  auto secondary_color = theme_conf->get_json("/secondary_color").empty()
-          ? lv_color_hex(0xF44336)
-          : lv_color_hex(std::stoul(theme_conf->get<std::string>("/secondary_color"), nullptr, 16));
-
-auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
-auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
-    conf->get<std::string>("/log_path"), 1048576 * 10, 3);
-spdlog::sinks_init_list log_sinks{console_sink, file_sink};
+  auto console_sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+  auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+      conf->get<std::string>("/log_path"), 1048576 * 10, 3);
+  spdlog::sinks_init_list log_sinks{console_sink, file_sink};
 
   auto klogger = std::make_shared<spdlog::logger>("guppyscreen", log_sinks);
   spdlog::register_logger(klogger);
@@ -77,9 +66,7 @@ spdlog::sinks_init_list log_sinks{console_sink, file_sink};
   spdlog::set_default_logger(klogger);
   klogger->flush_on(ll);
 
-#ifdef GUPPYSCREEN_VERSION
   spdlog::info("Guppy Screen Version: {}", GUPPYSCREEN_VERSION);
-#endif  // GUPPYSCREEN_VERSION
 
   spdlog::info("DPI: {}", LV_DPI_DEF);
   /*LittlevGL init*/
@@ -125,16 +112,13 @@ spdlog::sinks_init_list log_sinks{console_sink, file_sink};
   ws.register_notify_update(State::get_instance());
 
   GuppyScreen *gs = GuppyScreen::get();
-  auto printers = conf->get_json("/printers");
-  if (!printers.empty()) {
-    // start initializing all guppy components
-    std::string ws_url = fmt::format("ws://{}:{}/websocket",
-                                     conf->get<std::string>(conf->df() + "moonraker_host"),
-                                     conf->get<uint32_t>(conf->df() + "moonraker_port"));
+  // start initializing all guppy components
+  std::string ws_url = fmt::format("ws://{}:{}/websocket",
+                                   conf->get<std::string>("/moonraker_host"),
+                                   conf->get<uint32_t>("/moonraker_port"));
 
-    spdlog::info("connecting to printer at {}", ws_url);
-    gs->connect_ws(ws_url);
-  }
+  spdlog::info("connecting to printer at {}", ws_url);
+  gs->connect_ws(ws_url);
 
   screen_saver = lv_obj_create(lv_scr_act());
 
@@ -202,35 +186,16 @@ void GuppyScreen::new_theme_apply_cb(lv_theme_t *th, lv_obj_t *obj) {
   }
 
   if (lv_obj_check_type(obj, &lv_imgbtn_class)) {
-//    lv_obj_add_style(obj, &style_imgbtn_default, LV_STATE_DEFAULT);
     lv_obj_add_style(obj, &style_imgbtn_pressed, LV_STATE_PRESSED);
     lv_obj_add_style(obj, &style_imgbtn_disabled, LV_STATE_DISABLED);
   }
 }
 
-void GuppyScreen::handle_calibrated(lv_event_t *event) {
-  spdlog::info("finished calibration");
-  lv_obj_t *main_screen = (lv_obj_t *)event->user_data;
-  lv_disp_load_scr(main_screen);
-}
-
-void GuppyScreen::save_calibration_coeff(lv_tc_coeff_t coeff) {
-  Config *conf = Config::get_instance();
-  conf->set<std::vector<float>>("/touch_calibration_coeff",
-                                {coeff.a, coeff.b, coeff.c, coeff.d, coeff.e, coeff.f});
-  conf->save();
-}
-
 void GuppyScreen::refresh_theme() {
   lv_theme_t *th = lv_theme_default_get();
   ThemeConfig *theme_conf = ThemeConfig::get_instance();
-  auto primary_color = theme_conf->get_json("/primary_color").empty()
-                       ? lv_color_hex(0x2196F3)
-                       : lv_color_hex(std::stoul(theme_conf->get<std::string>("/primary_color"), nullptr, 16));
-
-  auto secondary_color = theme_conf->get_json("/secondary_color").empty()
-                         ? lv_color_hex(0xF44336)
-                         : lv_color_hex(std::stoul(theme_conf->get<std::string>("/secondary_color"), nullptr, 16));
+  auto primary_color = lv_color_hex(std::stoul(theme_conf->get<std::string>("/primary_color"), nullptr, 16));
+  auto secondary_color = lv_color_hex(std::stoul(theme_conf->get<std::string>("/secondary_color"), nullptr, 16));
 
   lv_disp_t *disp = lv_disp_get_default();
   lv_theme_t * new_theme =  lv_theme_default_init(disp, primary_color, secondary_color, true, th->font_normal);

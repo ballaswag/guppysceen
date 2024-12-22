@@ -1,0 +1,52 @@
+{
+    "display_brightness": 90,
+    "display_sleep_sec": 600,
+    "invert_z_icon": false,
+    "guppy_init_script": "/etc/init.d/S99guppyscreen",
+    "guppy_update_script": "/usr/data/pellcorp/k1/update-guppyscreen.sh",
+    "factory_reset_script": "/etc/init.d/S58factoryreset",
+    "log_path": "/usr/data/printer_data/logs/guppyscreen.log",
+    "prompt_emergency_stop": true,
+    "theme": "blue",
+    "thumbnail_path": "/usr/data/printer_data/thumbnails",
+    "wpa_supplicant": "/var/run/wpa_supplicant",
+    "default_macros": {
+        "cooldown": "SET_HEATER_TEMPERATURE HEATER=extruder TARGET=0\nSET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=0",
+        "load_filament": "LOAD_MATERIAL",
+        "unload_filament": "QUIT_MATERIAL",
+        "belts_shaper_calibration": "BELTS_SHAPER_CALIBRATION",
+        "excitate_axis_at_frequency": "EXCITATE_AXIS_AT_FREQUENCY"
+    },
+    "log_level": "info",
+    "moonraker_api_key": false,
+    "moonraker_host": "127.0.0.1",
+    "moonraker_port": 7125,
+    "fans": [
+        {
+            "id": "fan_generic part",
+            "display_name": "Toolhead"
+        },
+        {
+            "id": "fan_generic auxiliary",
+            "display_name": "Auxiliary"
+        },
+        {
+            "id": "fan_generic chamber",
+            "display_name": "Chamber"
+        }
+    ],
+    "monitored_sensors": [
+        {
+            "id": "extruder",
+            "display_name": "Extruder",
+            "controllable": true,
+            "color": "red"
+        },
+        {
+            "id": "heater_bed",
+            "display_name": "Bed",
+            "controllable": true,
+            "color": "purple"
+        }
+    ]
+}

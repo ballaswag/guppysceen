@@ -108,13 +108,10 @@ SysInfoPanel::SysInfoPanel()
 			  "1 Hour\n"
 			  "5 Hours");
 
-  auto v = conf->get_json("/display_sleep_sec");
-  if (!v.is_null()) {
-    auto sleep_sec = v.template get<int32_t>();
-    const auto &el = sleepsec_to_dd_idx.find(sleep_sec);
-    if (el != sleepsec_to_dd_idx.end()) {
-      lv_dropdown_set_selected(display_sleep_dd, el->second);
-    }
+  const int32_t sleep_sec = conf->get<int32_t>("/display_sleep_sec");
+  const auto &el = sleepsec_to_dd_idx.find(sleep_sec);
+  if (el != sleepsec_to_dd_idx.end()) {
+    lv_dropdown_set_selected(display_sleep_dd, el->second);
   }
   lv_obj_add_event_cb(display_sleep_dd, &SysInfoPanel::_handle_callback,
 		      LV_EVENT_VALUE_CHANGED, this);
@@ -128,16 +125,11 @@ SysInfoPanel::SysInfoPanel()
 
   lv_dropdown_set_options(loglevel_dd, fmt::format("{}", fmt::join(log_levels, "\n")).c_str());
 
-  auto df = conf->get_json("/default_printer");
   json j_null;
-  v = !df.empty() ? conf->get_json(conf->df() + "log_level") : j_null;
-  if (!v.is_null()) {
-    auto it = std::find(log_levels.begin(), log_levels.end(), v.template get<std::string>());
-    if (it != std::end(log_levels)) {
-      loglevel = std::distance(log_levels.begin(), it);
-      lv_dropdown_set_selected(loglevel_dd, loglevel);
-    }
-  } else {
+  const std::string log_level = conf->get<std::string>("/log_level");
+  auto ll_idx = std::find(log_levels.begin(), log_levels.end(), log_level);
+  if (ll_idx != std::end(log_levels)) {
+    loglevel = std::distance(log_levels.begin(),ll_idx);
     lv_dropdown_set_selected(loglevel_dd, loglevel);
   }
 
@@ -152,15 +144,11 @@ SysInfoPanel::SysInfoPanel()
   lv_obj_align(l, LV_ALIGN_LEFT_MID, 0, 0);
   lv_obj_align(prompt_estop_toggle, LV_ALIGN_RIGHT_MID, 0, 0);
 
-  v = conf->get_json("/prompt_emergency_stop");
-  if (!v.is_null()) {
-    if (v.template get<bool>()) {
-      lv_obj_add_state(prompt_estop_toggle, LV_STATE_CHECKED);
-    } else {
-      lv_obj_clear_state(prompt_estop_toggle, LV_STATE_CHECKED);
-    }
-  } else {
+  const bool prompt_emergency_stop = conf->get<bool>("/prompt_emergency_stop");
+  if (prompt_emergency_stop) {
     lv_obj_add_state(prompt_estop_toggle, LV_STATE_CHECKED);
+  } else {
+    lv_obj_clear_state(prompt_estop_toggle, LV_STATE_CHECKED);
   }
 
   lv_obj_add_event_cb(prompt_estop_toggle, &SysInfoPanel::_handle_callback,
@@ -175,20 +163,14 @@ SysInfoPanel::SysInfoPanel()
   lv_obj_align(l, LV_ALIGN_LEFT_MID, 0, 0);
   lv_obj_align(z_icon_toggle, LV_ALIGN_RIGHT_MID, 0, 0);
 
-  v = conf->get_json("/invert_z_icon");
-  if (!v.is_null()) {
-    if (v.template get<bool>()) {
-      lv_obj_add_state(z_icon_toggle, LV_STATE_CHECKED);
-    } else {
-      lv_obj_clear_state(z_icon_toggle, LV_STATE_CHECKED);
-    }
+  const bool invert_z_icon = conf->get<bool>("/invert_z_icon");
+  if (invert_z_icon) {
+    lv_obj_add_state(z_icon_toggle, LV_STATE_CHECKED);
   } else {
-    // Default is cleared
     lv_obj_clear_state(z_icon_toggle, LV_STATE_CHECKED);
   }
 
-  lv_obj_add_event_cb(z_icon_toggle, &SysInfoPanel::_handle_callback,
-		      LV_EVENT_VALUE_CHANGED, this);
+  lv_obj_add_event_cb(z_icon_toggle, &SysInfoPanel::_handle_callback, LV_EVENT_VALUE_CHANGED, this);
 
   // theme dropdown
   lv_obj_set_size(theme_cont, LV_PCT(100), LV_SIZE_CONTENT);
@@ -200,21 +182,15 @@ SysInfoPanel::SysInfoPanel()
 
   lv_dropdown_set_options(theme_dd, fmt::format("{}", fmt::join(themes, "\n")).c_str());
 
-  v = conf->get_json("/theme");
-  if (!v.is_null()) {
-      auto it = std::find(themes.begin(), themes.end(), v.template get<std::string>());
-      if (it != std::end(themes)) {
-          theme = std::distance(themes.begin(), it);
-          lv_dropdown_set_selected(theme_dd, theme);
-      }
-  } else {
+  const std::string theme_id = conf->get<std::string>("/theme");
+  auto theme_idx = std::find(themes.begin(), themes.end(), theme_id);
+  if (theme_idx != std::end(themes)) {
+      theme = std::distance(themes.begin(), theme_idx);
       lv_dropdown_set_selected(theme_dd, theme);
   }
-  lv_obj_add_event_cb(theme_dd, &SysInfoPanel::_handle_callback,
-                      LV_EVENT_VALUE_CHANGED, this);
 
-
-  lv_obj_add_flag(back_btn.get_container(), LV_OBJ_FLAG_FLOATING);	
+  lv_obj_add_event_cb(theme_dd, &SysInfoPanel::_handle_callback, LV_EVENT_VALUE_CHANGED, this);
+  lv_obj_add_flag(back_btn.get_container(), LV_OBJ_FLAG_FLOATING);
   lv_obj_align(back_btn.get_container(), LV_ALIGN_BOTTOM_RIGHT, 0, 0);
 }
 
@@ -262,7 +238,7 @@ void SysInfoPanel::handle_callback(lv_event_t *e)
           spdlog::set_level(ll);
           spdlog::flush_on(ll);
           spdlog::debug("setting log_level to {}", log_levels[loglevel]);
-          conf->set<std::string>(conf->df() + "log_level", log_levels[loglevel]);
+          conf->set<std::string>("/log_level", log_levels[loglevel]);
           conf->save();
         }
       }

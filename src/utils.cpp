@@ -28,16 +28,10 @@ namespace KUtils {
     if (!v.is_null()) {
       std::string homed_axes = v.template get<std::string>();
       return homed_axes.find("x") != std::string::npos
-	&& homed_axes.find("y") != std::string::npos
-	&& homed_axes.find("z") != std::string::npos;
+	      && homed_axes.find("y") != std::string::npos
+	      && homed_axes.find("z") != std::string::npos;
     }
     return false;
-  }
-
-  bool is_running_local() {
-    Config *conf = Config::get_instance();
-    std::string df_host = conf->get<std::string>(conf->df() + "moonraker_host");
-    return df_host == "localhost" || df_host == "127.0.0.1";
   }
 
   std::string get_root_path(const std::string root_name) {
@@ -65,19 +59,19 @@ namespace KUtils {
       uint32_t closest_index = 0;
       size_t thumb_width = 0;
       auto width = thumbs.at(0)["width"].is_number()
-	? thumbs.at(0)["width"].template get<int>()
-	: std::stoi(thumbs.at(0)["width"].template get<std::string>());
+	        ? thumbs.at(0)["width"].template get<int>()
+	        : std::stoi(thumbs.at(0)["width"].template get<std::string>());
       int closest = std::abs(scaled_width - width);
       for (int i = 0; i < thumbs.size(); i++) {
-	width = thumbs.at(i)["width"].is_number()
-	  ? thumbs.at(i)["width"].template get<int>()
-	  : std::stoi(thumbs.at(i)["width"].template get<std::string>());
-	int cur_diff = std::abs(scaled_width - width);
-	if (cur_diff < closest) {
-	  closest = cur_diff;
-	  closest_index = i;
-	  thumb_width = width;
-	}
+	      width = thumbs.at(i)["width"].is_number()
+	        ? thumbs.at(i)["width"].template get<int>()
+	        : std::stoi(thumbs.at(i)["width"].template get<std::string>());
+	      int cur_diff = std::abs(scaled_width - width);
+        if (cur_diff < closest) {
+          closest = cur_diff;
+          closest_index = i;
+          thumb_width = width;
+        }
       }
 
       auto &thumb = thumbs.at(closest_index);
@@ -87,53 +81,35 @@ namespace KUtils {
       std::string relative_path = thumb["relative_path"].template get<std::string>();
       size_t found = gcode_file.find_last_of("/\\");
       if (found != std::string::npos) {
-	relative_path = gcode_file.substr(0, found + 1) + relative_path;
+	      relative_path = gcode_file.substr(0, found + 1) + relative_path;
       }
 
       Config *conf = Config::get_instance();
-      std::string df_host = conf->get<std::string>(conf->df() + "moonraker_host");
+      std::string moonraker_host = conf->get<std::string>("/moonraker_host");
       std::string fname = relative_path.substr(relative_path.find_last_of("/\\") + 1);
       std::string fullpath = fmt::format("{}/{}", conf->get<std::string>("/thumbnail_path"), fname);
     
       // download thumbnail
-      if (is_running_local()) {
-	spdlog::debug("running locally, skipping thumbnail downloads");
-	auto gcode_root = get_root_path("gcodes");
-	fullpath = fmt::format("{}/{}", gcode_root, relative_path);
-      } else {
-	std::string thumb_url = fmt::format("http://{}:{}/server/files/gcodes/{}",
-					    df_host,
-					    conf->get<uint32_t>(conf->df() + "moonraker_port"),
-					    HUrl::escape(relative_path));
-
-
-	// threadpool this
-	spdlog::debug("thumb url {}", thumb_url);
-	auto size = requests::downloadFile(thumb_url.c_str(), fullpath.c_str());
-	spdlog::trace("downloaded size {}", size);
-      }
+      auto gcode_root = get_root_path("gcodes");
+      fullpath = fmt::format("{}/{}", gcode_root, relative_path);
 
       return std::make_pair(fullpath, thumb_width);
     }
-
     return std::make_pair("", 0);
   }
 
-  std::string download_file(const std::string &root,
-			    const std::string &fname,
-			    const std::string &dest) {
-
+  std::string download_file(const std::string &root, const std::string &fname, const std::string &dest) {
     auto filename = fs::path(fname).filename();
     auto dest_fullpath = fs::path(dest) / filename;
 
     spdlog::trace("root {}, fname {}, base filename {}, dest_fp {}", root, fname,
 		  filename.string(), dest_fullpath.string());
     Config *conf = Config::get_instance();
-    std::string df_host = conf->get<std::string>(conf->df() + "moonraker_host");
+    std::string moonraker_host = conf->get<std::string>("/moonraker_host");
 
     std::string file_url = fmt::format("http://{}:{}/server/files/{}/{}",
-					df_host,
-					conf->get<uint32_t>(conf->df() + "moonraker_port"),
+					moonraker_host,
+					conf->get<uint32_t>("/moonraker_port"),
 					root,
 					HUrl::escape(fname));
     // threadpool this
@@ -150,7 +126,7 @@ namespace KUtils {
     getifaddrs(&addrs);
     for (struct ifaddrs *addr = addrs; addr != nullptr; addr = addr->ifa_next) {
         if (addr->ifa_addr && addr->ifa_addr->sa_family == AF_PACKET) {
-	  ifaces.push_back(addr->ifa_name);
+	        ifaces.push_back(addr->ifa_name);
         }
     }
 

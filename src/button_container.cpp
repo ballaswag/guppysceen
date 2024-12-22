@@ -32,8 +32,8 @@ ButtonContainer::ButtonContainer(lv_obj_t *parent,
   // lv_obj_add_flag(btn_cont, LV_OBJ_FLAG_EVENT_BUBBLE);
 
   Config *conf = Config::get_instance();
-  auto estop = conf->get_json("/prompt_emergency_stop");
-  auto prompt_estop = force || (!estop.is_null() && estop.template get<bool>());
+  const bool prompt_emergency_stop = conf->get<bool>("/prompt_emergency_stop");
+  auto prompt_estop = force || prompt_emergency_stop;
 
   if (cb != NULL && !pcb) {
     lv_obj_add_event_cb(btn_cont, &ButtonContainer::_handle_callback, LV_EVENT_PRESSED, this);

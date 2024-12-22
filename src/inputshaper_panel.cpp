@@ -372,11 +372,7 @@ void InputShaperPanel::handle_macro_response(json &j) {
 	    auto config_root = KUtils::get_root_path("config");
 	    auto png_path = fmt::format("{}/{}", config_root.length() > 0 ? config_root : "/tmp" , X_PNG);
 
-	    png_path = 
-	      fmt::format("A:{}", KUtils::is_running_local()
-			  ? png_path
-			  : KUtils::download_file("config", X_PNG, Config::get_instance()->get_thumbnail_path()));
-
+	    png_path = fmt::format("A:{}", png_path);
 	    spdlog::trace("x freq png path {}", png_path);
 	      
 	    lv_label_set_text(xoutput, "");
@@ -398,10 +394,7 @@ void InputShaperPanel::handle_macro_response(json &j) {
 	    auto config_root = KUtils::get_root_path("config");
 	    auto png_path = fmt::format("{}/{}", config_root.length() > 0 ? config_root : "/tmp" , Y_PNG);
 
-	    png_path = 
-	      fmt::format("A:{}", KUtils::is_running_local()
-			  ? png_path
-			  : KUtils::download_file("config", Y_PNG, Config::get_instance()->get_thumbnail_path()));
+	    png_path = fmt::format("A:{}", png_path);
 
 	    spdlog::trace("y freq png path {}", png_path);
 

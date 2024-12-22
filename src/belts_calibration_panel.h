@@ -50,8 +50,6 @@ class BeltsCalibrationPanel {
   ButtonContainer emergency_btn;
   ButtonContainer back_btn;
   bool image_fullsized;
-  std::string belts_shaper_calibration_macro;
-  std::string excitate_axis_at_frequency_macro;
 
   static std::vector<std::string> axes;
 

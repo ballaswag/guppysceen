@@ -145,8 +145,7 @@ void HomingPanel::foreground() {
 
   //Set the Z axis buttons
 
-  v = Config::get_instance()->get_json("/invert_z_icon");
-  bool inverted = !v.is_null() && v.template get<bool>();
+  const bool inverted = Config::get_instance()->get<bool>("/invert_z_icon");
   if (inverted) {
     // UP arrow
     z_up_btn.set_image(&z_farther);

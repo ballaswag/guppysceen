@@ -22,12 +22,7 @@ InitPanel::InitPanel(MainPanel &mp, BedMeshPanel &bmp, std::mutex& l)
   
   lv_obj_set_size(label, LV_PCT(100), LV_SIZE_CONTENT);
 
-  Config *conf = Config::get_instance();
-  if (!conf->get_json("/default_printer").is_null()) {
-    lv_label_set_text(label, LV_SYMBOL_WARNING " Waiting for printer to initialize...");
-  } else {
-    lv_label_set_text(label, "Welcome to Guppy Screen. Use the Setting Panel to add your printers.");
-  }
+  lv_label_set_text(label, LV_SYMBOL_WARNING " Waiting for printer to initialize...");
   lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
   lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 }

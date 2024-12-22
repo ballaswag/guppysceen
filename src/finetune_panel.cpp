@@ -119,16 +119,14 @@ void FineTunePanel::foreground() {
 	   static_cast<int>(v.template get<double>() * 100)).c_str());
   }
 
-  v = State::get_instance()->get_data(
-		"/printer_state/gcode_move/extrude_factor"_json_pointer);
+  v = State::get_instance()->get_data("/printer_state/gcode_move/extrude_factor"_json_pointer);
   if (!v.is_null()) {
     flow_factor.update_label(fmt::format("{}%",
 	   static_cast<int>(v.template get<double>() * 100)).c_str());
   }
 
   //Set the Z axis buttons
-  v = Config::get_instance()->get_json("/invert_z_icon");
-  bool inverted = !v.is_null() && v.template get<bool>();
+  const bool inverted = Config::get_instance()->get<bool>("/invert_z_icon");
   if (inverted) {
     // UP arrow
     zup_btn.set_image(&z_farther);
