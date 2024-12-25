@@ -14,7 +14,6 @@ LV_IMG_DECLARE(motor_img);
 LV_IMG_DECLARE(chart_img);
 
 LV_IMG_DECLARE(belts_calibration_img);
-LV_IMG_DECLARE(power_devices_img);
 
 PrinterTunePanel::PrinterTunePanel(KWebSocketClient &c, std::mutex &l, lv_obj_t *parent, FineTunePanel &finetune)
   : cont(lv_obj_create(parent))
@@ -23,25 +22,17 @@ PrinterTunePanel::PrinterTunePanel(KWebSocketClient &c, std::mutex &l, lv_obj_t 
   , limits_panel(c, l)
   , inputshaper_panel(c, l)
   , belts_calibration_panel(c, l)
-  , tmc_tune_panel(c)
-  , tmc_status_panel(c, l)
-  , power_panel(c, l)
   , bedmesh_btn(cont, &bedmesh_img, "Bed Mesh", &PrinterTunePanel::_handle_callback, this)
   , finetune_btn(cont, &fine_tune_img, "Fine Tune", &PrinterTunePanel::_handle_callback, this)
   , inputshaper_btn(cont, &inputshaper_img, "Input Shaper", &PrinterTunePanel::_handle_callback, this)
   , belts_calibration_btn(cont, &belts_calibration_img, "Belts/Shake", &PrinterTunePanel::_handle_callback, this)
   , limits_btn(cont, &limit_img, "Limits", &PrinterTunePanel::_handle_callback, this)
-  , tmc_tune_btn(cont, &motor_img, "TMC Autotune", &PrinterTunePanel::_handle_callback, this)
-  , tmc_status_btn(cont, &chart_img, "TMC Metrics", &PrinterTunePanel::_handle_callback, this)
-  , power_devices_btn(cont, &power_devices_img, "Power Devices", &PrinterTunePanel::_handle_callback, this)
 {
   lv_obj_move_background(cont);
 
   lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
   lv_obj_set_size(cont, LV_PCT(100), LV_PCT(100));
 
-  tmc_tune_btn.disable();
-  tmc_status_btn.disable();
   inputshaper_btn.disable();
 
   static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(5), LV_GRID_FR(5), LV_GRID_TEMPLATE_LAST};
@@ -58,10 +49,6 @@ PrinterTunePanel::PrinterTunePanel(KWebSocketClient &c, std::mutex &l, lv_obj_t 
 
   // row 2
   lv_obj_set_grid_cell(limits_btn.get_container(), LV_GRID_ALIGN_CENTER, 0, 1, LV_GRID_ALIGN_START, 2, 1);
-  lv_obj_set_grid_cell(tmc_tune_btn.get_container(), LV_GRID_ALIGN_CENTER, 1, 1, LV_GRID_ALIGN_START, 2, 1);
-  lv_obj_set_grid_cell(tmc_status_btn.get_container(), LV_GRID_ALIGN_CENTER, 2, 1, LV_GRID_ALIGN_START, 2, 1);
-  lv_obj_set_grid_cell(power_devices_btn.get_container(), LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_START, 2, 1);
-  // lv_obj_set_grid_cell(restart_firmware_btn.get_container(), LV_GRID_ALIGN_CENTER, 3, 1, LV_GRID_ALIGN_START, 2, 1);
 }
 
 PrinterTunePanel::~PrinterTunePanel() {
@@ -79,27 +66,8 @@ BedMeshPanel& PrinterTunePanel::get_bedmesh_panel() {
   return bedmesh_panel;
 }
 
-PowerPanel& PrinterTunePanel::get_power_panel() {
-  return power_panel;
-}
-
 void PrinterTunePanel::init(json &j) {
   limits_panel.init(j);
-
-  tmc_status_panel.init(j);
-
-  // TODO: handle remote guppy instance
-  State *s = State::get_instance();
-  auto kp = s->get_data("/printer_info/klipper_path"_json_pointer);
-  if (!kp.is_null()) {
-    auto p = fs::path(kp.template get<std::string>()) / "klippy/extras/motor_database.cfg";
-    if (fs::exists(p)) {
-      tmc_tune_btn.enable();
-      tmc_tune_panel.init(j, p);
-    } else {
-      tmc_tune_btn.disable();
-    }
-  }
 }
 
 void PrinterTunePanel::handle_callback(lv_event_t *event) {
@@ -121,15 +89,6 @@ void PrinterTunePanel::handle_callback(lv_event_t *event) {
     } else if (btn == limits_btn.get_container()) {
       spdlog::trace("limits pressed");
       limits_panel.foreground();
-    } else if (btn == tmc_tune_btn.get_container()) {
-      spdlog::trace("tmc auto tune pressed");
-      tmc_tune_panel.foreground();
-    } else if (btn == tmc_status_btn.get_container()) {
-      spdlog::trace("tmc metrics pressed");
-      tmc_status_panel.foreground();
-    } else if (btn == power_devices_btn.get_container()) {
-      spdlog::trace("power devices pressed");
-      power_panel.foreground();
     }
   }
 }

@@ -99,8 +99,6 @@ void InitPanel::connected(KWebSocketClient &ws) {
 	    }
 	  }
 
-	  sub_objs["tmcstatus"] = nullptr;
-
 	  json subs = {{ "objects", sub_objs }};
 	  spdlog::debug("subcribing to {}", subs.dump());
 	  ws.send_jsonrpc("printer.objects.subscribe", subs,
@@ -117,10 +115,6 @@ void InitPanel::connected(KWebSocketClient &ws) {
 					
 			  });
 	}
-  });
-
-  ws.send_jsonrpc("machine.device_power.devices", [this](json& j) {
-    main_panel.get_tune_panel().get_power_panel().create_devices(j);
   });
 }
 

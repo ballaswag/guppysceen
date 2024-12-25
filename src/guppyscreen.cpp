@@ -8,6 +8,8 @@
 #include "spdlog/spdlog.h"
 #include "state.h"
 #include "theme.h"
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
 
 GuppyScreen *GuppyScreen::instance = NULL;
 lv_style_t GuppyScreen::style_container;

@@ -7,7 +7,6 @@ GIT_REVISION=$(git rev-parse --short HEAD)
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD | awk -F '/' '{print $2}')
 
 function docker_make() {
-
     docker run -ti -v $PWD:$PWD pellcorp/guppydev /bin/bash -c "cd $PWD && GUPPYSCREEN_VERSION=$GIT_REVISION GUPPYSCREEN_BRANCH=$GIT_BRANCH CROSS_COMPILE=mipsel-buildroot-linux-musl- make $@"
 }
 
