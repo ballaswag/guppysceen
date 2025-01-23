@@ -26,7 +26,6 @@ Only for Installation via Simple AF
 ## Features
 :white_check_mark: Console/Macro Shell  
 :white_check_mark: Bedmesh  
-:white_check_mark: Input Shaper (PSD graphs)  
 :white_check_mark: Belt Calibration/Excitate  
 :white_check_mark: Print Status  
 :white_check_mark: Spoolman Integration  
@@ -36,10 +35,6 @@ Only for Installation via Simple AF
 :white_check_mark: Fine Tune (speed, flow, z-offset, Pressure Advance)  
 :white_check_mark: Limits (Velocity, Acel, Square Corner Velocity, etc.)  
 :white_check_mark: File Browser  
-:white_check_mark: Supports multiple screen resolutions  
-:white_check_mark: Cross platform releases (MIPS/ARM/x86)  
-:white_check_mark: TMC Metrics  
-:white_check_mark: Multi-Printer support  
 
 ## Documentation
 You can find various Guppy Screen documents [here](https://ballaswag.github.io/docs/guppyscreen/configuration/).
