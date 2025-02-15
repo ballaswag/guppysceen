@@ -25,11 +25,14 @@ ExtruderPanel::ExtruderPanel(KWebSocketClient &websocket_client,
   , extruder_temp(ws, panel_cont, &extruder, 150,
 	  "Extruder", lv_palette_main(LV_PALETTE_RED), false, true, numpad, "extruder", NULL, NULL)
   , temp_selector(panel_cont, "Extruder Temperature (C)",
-		  {"180", "190", "200", "210", "220", "230", "240", "250", "260", "270", "280", "290", "300", ""}, 6, &ExtruderPanel::_handle_callback, this)
+		  {"180", "190", "200", "210", "220", "230", "240", "\n", "250", "260", "270", "280", "290", "300", ""},
+		  6, 62, 30, &ExtruderPanel::_handle_callback, this)
   , length_selector(panel_cont, "Extrude Length (mm)",
-		    {"5", "10", "15", "20", "25", "30", "35", ""}, 1, &ExtruderPanel::_handle_callback, this)
+		    {"5", "10", "15", "20", "25", "30", "35", ""},
+		    1, 62, 15, &ExtruderPanel::_handle_callback, this)
   , speed_selector(panel_cont, "Extrude Speed (mm/s)",
-		   {"1", "2", "5", "10", "25", "35", "50", ""}, 2, &ExtruderPanel::_handle_callback, this)
+		   {"1", "2", "5", "10", "25", "35", "50", ""},
+		   2, 62, 15, &ExtruderPanel::_handle_callback, this)
   , rightside_btns_cont(lv_obj_create(panel_cont))
   , leftside_btns_cont(lv_obj_create(panel_cont))
   , load_btn(leftside_btns_cont, &load_filament_img, "Load", &ExtruderPanel::_handle_callback, this)
@@ -80,7 +83,7 @@ ExtruderPanel::ExtruderPanel(KWebSocketClient &websocket_client,
   
   spoolman_btn.disable();  
 
-  static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(3), LV_GRID_FR(6), LV_GRID_FR(6), LV_GRID_FR(6),
+  static lv_coord_t grid_main_row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3), LV_GRID_FR(3), LV_GRID_FR(6),
     LV_GRID_TEMPLATE_LAST};
   static lv_coord_t grid_main_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(7), LV_GRID_FR(2), LV_GRID_TEMPLATE_LAST};
   
