@@ -211,7 +211,7 @@ void SysInfoPanel::foreground() {
     auto ip = KUtils::interface_ip(iface);
     network_detail.push_back(fmt::format("\t{}: {}", iface, ip));
   }
-  lv_label_set_text(network_label, fmt::format("{}\n\nSAF GrumpyScreen\n\tVersion: {}-{}", fmt::join(network_detail, "\n"),
+  lv_label_set_text(network_label, fmt::format("{}\n\nSAF GrumpyScreen\n\tBranch: {}\n\tRevision: {}", fmt::join(network_detail, "\n"),
           GUPPYSCREEN_BRANCH, GUPPYSCREEN_VERSION).c_str());
 }
 
